@@ -28,6 +28,9 @@ type
 
 implementation
 
+uses
+  Math;
+
 { TGDIRenderContext }
 
 procedure TGDIRenderContext.BrushChanged;
@@ -48,6 +51,8 @@ begin
   inherited Create();
   FCanvas := TCanvas.Create();
   FCanvas.Handle := ADeviceContext;
+  BrushChanged();
+  PenChanged();
 end;
 
 destructor TGDIRenderContext.Destroy;
@@ -58,31 +63,45 @@ end;
 
 procedure TGDIRenderContext.DrawEllipsis(const ARect: TRectF);
 begin
-  FCanvas.Ellipse(Round(ARect.Left), Round(ARect.Top), Round(ARect.Right), Round(ARect.Bottom));
+  FCanvas.Ellipse(Trunc(ARect.Left), Trunc(ARect.Top), Round(ARect.Right), Round(ARect.Bottom));
 end;
 
 procedure TGDIRenderContext.DrawLine(const AFrom, ATo: TPointF);
 begin
-  FCanvas.MoveTo(Round(AFrom.X), Round(AFrom.Y));
-  FCanvas.LineTo(Round(ATo.X), Round(ATo.Y));
+  //draw forward and backwards, otherwhise when drawing in low resolutions, first pixel might not be colored
+  FCanvas.MoveTo(Trunc(AFrom.X), Trunc(AFrom.Y));
+  FCanvas.LineTo(Trunc(ATo.X), Trunc(ATo.Y));
+  FCanvas.LineTo(Trunc(AFrom.X), Trunc(AFrom.Y));
 end;
 
 procedure TGDIRenderContext.DrawPolygon(const APoints: array of TPointF);
 var
   LPoints: array of TPoint;
   i: Integer;
+  LStyle: TPenStyle;
 begin
   SetLength(LPoints, Length(APoints));
   for i := 0 to Length(APoints) - 1 do
   begin
     LPoints[i] := Point(Round(APoints[i].X), Round(APoints[i].Y));
   end;
+  LStyle := FCanvas.Pen.Style;
+  FCanvas.Pen.Style := psClear;
   FCanvas.Polygon(LPoints);
+  FCanvas.Pen.Style := LStyle;
+  //draw outline manually, for better precision
+  for i := 1 to Length(APoints) - 1 do
+    DrawLine(APoints[i-1], APoints[i]);
+
+  DrawLine(APoints[Length(APoints)-1], APoints[0]);
 end;
 
 procedure TGDIRenderContext.FillRectangle(const ARect: TRectF);
+var
+  LRect: TRect;
 begin
-  FCanvas.FillRect(Rect(Round(ARect.Left), Round(ARect.Top), Round(ARect.Right), Round(ARect.Bottom)));
+  LRect := Rect(Trunc(ARect.Left), Trunc(ARect.Top), Round(ARect.Right), Round(ARect.Bottom));
+  FCanvas.FillRect(LRect);
 end;
 
 procedure TGDIRenderContext.PenChanged;
