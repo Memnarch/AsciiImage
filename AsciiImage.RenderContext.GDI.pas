@@ -37,6 +37,10 @@ procedure TGDIRenderContext.BrushChanged;
 begin
   inherited;
   FCanvas.Brush.Color := Brush.Color;
+  if Brush.Visible then
+    FCanvas.Brush.Style := bsSolid
+  else
+    FCanvas.Brush.Style := bsClear;
 end;
 
 procedure TGDIRenderContext.Clear(AColor: TColor);
@@ -109,6 +113,10 @@ begin
   inherited;
   FCanvas.Pen.Color := Pen.Color;
   FCanvas.Pen.Width := Pen.Size;
+  if Pen.Visible then
+    FCanvas.Pen.Style := psSolid
+  else
+    FCanvas.Pen.Style := psClear;
 end;
 
 end.

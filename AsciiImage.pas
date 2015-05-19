@@ -10,6 +10,14 @@ uses
   AsciiImage.Shapes;
 
 type
+  TAsciiImagePaintContext = record
+    FillColor: TColor;
+    StrokeColor: TColor;
+    PenSize: Integer;
+  end;
+
+  TAsciiImagePaintCallBack = reference to procedure(const Index: Integer; var Context: TAsciiImagePaintContext);
+
   TAsciiImage = class
   private
     FDots: array of TList<TPointF>;
@@ -17,6 +25,7 @@ type
     FIndexLookup: TDictionary<Char, Integer>;
     FWidth: Integer;
     FHeight: Integer;
+    FOnDraw: TAsciiImagePaintCallBack;
   protected
     procedure ScanShapes(); virtual;
     procedure AddDot(APoint: TPointF); virtual;
@@ -31,6 +40,7 @@ type
     procedure DrawDebugGrid(const ACanvas: TCanvas);
     property Width: Integer read FWidth;
     property Height: Integer read FHeight;
+    property OnDraw: TAsciiImagePaintCallBack read FOnDraw write FOnDraw;
   end;
 
 implementation
@@ -122,19 +132,30 @@ procedure TAsciiImage.Draw(const ACanvas: TCanvas);
 var
   LTemp: TBitmap;
   LContext: IRenderContext;
-  LShape: TAsciiShape;
+  i: Integer;
   LScale: Integer;
+  LPaintContext: TAsciiImagePaintContext;
 begin
   LScale := 100;
   LTemp := TBitmap.Create();
   LTemp.SetSize(Width*LScale, Height*LScale);
   LTemp.Canvas.FillRect(LTemp.Canvas.ClipRect);
   LContext := TGDIRenderContext.Create(LTemp.Canvas.Handle);
-  LContext.Pen.Size := LScale;
-  for LShape in FShapes do
+  for i := 0 to FShapes.Count - 1 do
   begin
-    LShape.Scale := LScale;
-    LShape.Draw(LContext);
+    LPaintContext.FillColor := clNone;
+    LPaintContext.StrokeColor := clNone;
+    LPaintContext.PenSize :=1;
+    if Assigned(FOnDraw) then
+      FOnDraw(i, LPaintContext);
+
+    LContext.Brush.Color := LPaintContext.FillColor;
+    LContext.Pen.Color := LPaintContext.StrokeColor;
+    LContext.Pen.Size := LPaintContext.PenSize*LScale;
+    LContext.Brush.Visible := LContext.Brush.Color <> clNone;
+    LContext.Pen.Visible := LContext.Pen.Color <> clNone;
+    FShapes[i].Scale := LScale;
+    FShapes[i].Draw(LContext);
   end;
   ACanvas.StretchDraw(ACanvas.ClipRect, LTemp);
 end;

@@ -24,7 +24,10 @@ type
   ['{C716DFFA-B2CD-4210-981B-627B8F923D70}']
     function GetColor: TColor;
     procedure SetColor(const Value: TColor);
+    function GetVisible: Boolean;
+    procedure SetVisible(const Value: Boolean);
     property Color: TColor read GetColor write SetColor;
+    property Visible: Boolean read GetVisible write SetVisible;
   end;
 
   IPenProperties = interface(IBrushProperties)

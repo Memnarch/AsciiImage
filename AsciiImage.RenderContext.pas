@@ -24,10 +24,14 @@ type
   TBrushProperties = class(TProperties, IBrushProperties)
   private
     FColor: TColor;
+    FVisible: Boolean;
     function GetColor: TColor;
     procedure SetColor(const Value: TColor);
+    function GetVisible: Boolean;
+    procedure SetVisible(const Value: Boolean);
   public
     property Color: TColor read GetColor write SetColor;
+    property Visible: Boolean read GetVisible write SetVisible;
   end;
 
   TPenProperties = class(TBrushProperties, IPenProperties)
@@ -85,11 +89,25 @@ begin
   Result := FColor;
 end;
 
+function TBrushProperties.GetVisible: Boolean;
+begin
+  Result := FVisible;
+end;
+
 procedure TBrushProperties.SetColor(const Value: TColor);
 begin
   if FColor <> Value then
   begin
     FColor := Value;
+    Changed();
+  end;
+end;
+
+procedure TBrushProperties.SetVisible(const Value: Boolean);
+begin
+  if FVisible <> Value then
+  begin
+    FVisible := Value;
     Changed();
   end;
 end;
