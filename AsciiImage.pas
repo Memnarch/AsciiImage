@@ -148,12 +148,12 @@ var
   LTemp: TBitmap;
   LContext: IRenderContext;
   i: Integer;
-  LScale: Integer;
+  LScale: Single;
   LPaintContext: TAsciiImagePaintContext;
 begin
-  LScale := (ARect.Right - ARect.Left) div FWidth;
+  LScale := (ARect.Right - ARect.Left) / FWidth;
   LTemp := TBitmap.Create();
-  LTemp.SetSize(Width*LScale, Height*LScale);
+  LTemp.SetSize(Round(Width*LScale), Round(Height*LScale));
   LContext := TGDIRenderContext.Create(LTemp.Canvas.Handle);
   LContext.Clear(ACanvas.Brush.Color);
   for i := 0 to FShapes.Count - 1 do
@@ -174,7 +174,7 @@ begin
 
     LContext.Brush.Color := LPaintContext.FillColor;
     LContext.Pen.Color := LPaintContext.StrokeColor;
-    LContext.Pen.Size := LPaintContext.PenSize*LScale;
+    LContext.Pen.Size := Round(LPaintContext.PenSize*LScale);
     LContext.Brush.Visible := LContext.Brush.Color <> clNone;
     LContext.Pen.Visible := LContext.Pen.Color <> clNone;
     FShapes[i].Scale := LScale;
@@ -185,26 +185,27 @@ end;
 
 procedure TAsciiImage.DrawDebugGrid(const ACanvas: TCanvas);
 var
-  LScaleX, LScaleY, i: Integer;
+  LScaleX, LScaleY: Single;
+  i: Integer;
   LMode: TPenMode;
   LColor: TColor;
 begin
-  LScaleX := (ACanvas.ClipRect.Right - ACanvas.ClipRect.Left) div FWidth;
-  LScaleY := (ACanvas.ClipRect.Bottom - ACanvas.ClipRect.Top) div FHeight;
+  LScaleX := (ACanvas.ClipRect.Right - ACanvas.ClipRect.Left) / FWidth;
+  LScaleY := (ACanvas.ClipRect.Bottom - ACanvas.ClipRect.Top) / FHeight;
   LMode := ACanvas.Pen.Mode;
   ACanvas.Pen.Mode := pmXor;
   LColor := ACanvas.Pen.Color;
   ACanvas.Pen.Color := clRed;
   for i := 1 to FWidth do
   begin
-    ACanvas.MoveTo(i*LScaleX, ACanvas.ClipRect.Top);
-    ACanvas.LineTo(i*LScaleX, ACanvas.ClipRect.Bottom);
+    ACanvas.MoveTo(Round(i*LScaleX), ACanvas.ClipRect.Top);
+    ACanvas.LineTo(Round(i*LScaleX), ACanvas.ClipRect.Bottom);
   end;
 
   for i := 1 to FHeight do
   begin
-    ACanvas.MoveTo(ACanvas.ClipRect.Left, i*LScaleY);
-    ACanvas.LineTo(ACanvas.ClipRect.Right, i*LScaleY);
+    ACanvas.MoveTo(ACanvas.ClipRect.Left, Round(i*LScaleY));
+    ACanvas.LineTo(ACanvas.ClipRect.Right, Round(i*LScaleY));
   end;
   ACanvas.Pen.Mode := LMode;
   ACanvas.Pen.Color := LColor;

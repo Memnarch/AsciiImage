@@ -82,22 +82,13 @@ procedure TGDIRenderContext.DrawPolygon(const APoints: array of TPointF);
 var
   LPoints: array of TPoint;
   i: Integer;
-  LStyle: TPenStyle;
 begin
   SetLength(LPoints, Length(APoints));
   for i := 0 to Length(APoints) - 1 do
   begin
-    LPoints[i] := Point(Round(APoints[i].X), Round(APoints[i].Y));
+    LPoints[i] := Point(Trunc(APoints[i].X), Trunc(APoints[i].Y));
   end;
-  LStyle := FCanvas.Pen.Style;
-  FCanvas.Pen.Style := psClear;
   FCanvas.Polygon(LPoints);
-  FCanvas.Pen.Style := LStyle;
-  //draw outline manually, for better precision
-  for i := 1 to Length(APoints) - 1 do
-    DrawLine(APoints[i-1], APoints[i]);
-
-  DrawLine(APoints[Length(APoints)-1], APoints[0]);
 end;
 
 procedure TGDIRenderContext.FillRectangle(const ARect: TRectF);
