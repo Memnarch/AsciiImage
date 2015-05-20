@@ -3,6 +3,8 @@ unit AsciiImage;
 interface
 
 uses
+  Classes,
+  Types,
   SysUtils,
   Graphics,
   Generics.Collections,
@@ -18,8 +20,9 @@ type
 
   TAsciiImagePaintCallBack = reference to procedure(const Index: Integer; var Context: TAsciiImagePaintContext);
 
-  TAsciiImage = class
+  TAsciiImage = class(TGraphic)
   private
+    FRawData: TArray<string>;
     FDots: array of TList<TPointF>;
     FShapes: TObjectList<TAsciiShape>;
     FIndexLookup: TDictionary<Char, Integer>;
@@ -27,19 +30,26 @@ type
     FHeight: Integer;
     FOnDraw: TAsciiImagePaintCallBack;
   protected
+    procedure Clear();
     procedure ScanShapes(); virtual;
     procedure AddDot(APoint: TPointF); virtual;
     procedure AddEllipsis(const APoints: array of TPointF); virtual;
     procedure AddPath(const APoints: array of TPointF); virtual;
     procedure AddLine(const AFrom, ATo: TPointF); virtual;
+    procedure Draw(ACanvas: TCanvas; const ARect: TRect); override;
+    function GetEmpty: Boolean; override;
+    function GetHeight: Integer; override;
+    function GetWidth: Integer; override;
+    procedure SetHeight(Value: Integer); override;
+    procedure SetWidth(Value: Integer); override;
   public
-    constructor Create();
+    constructor Create(); override;
     destructor Destroy(); override;
-    procedure Load(const AAsciiImage: array of string);
-    procedure Draw(const ACanvas: TCanvas);
+    procedure LoadFromAscii(const AAsciiImage: array of string);
+    procedure SaveToAscii(var AAsciiImage: TArray<string>);
     procedure DrawDebugGrid(const ACanvas: TCanvas);
-    property Width: Integer read FWidth;
-    property Height: Integer read FHeight;
+    procedure LoadFromStream(Stream: TStream); override;
+    procedure SaveToStream(Stream: TStream); override;
     property OnDraw: TAsciiImagePaintCallBack read FOnDraw write FOnDraw;
   end;
 
@@ -92,6 +102,11 @@ begin
   FShapes.Add(LPath);
 end;
 
+procedure TAsciiImage.Clear;
+begin
+  FShapes.Clear;
+end;
+
 constructor TAsciiImage.Create;
 var
   i: Integer;
@@ -128,7 +143,7 @@ begin
   inherited;
 end;
 
-procedure TAsciiImage.Draw(const ACanvas: TCanvas);
+procedure TAsciiImage.Draw(ACanvas: TCanvas; const ARect: TRect);
 var
   LTemp: TBitmap;
   LContext: IRenderContext;
@@ -136,18 +151,26 @@ var
   LScale: Integer;
   LPaintContext: TAsciiImagePaintContext;
 begin
-  LScale := 100;
+  LScale := (ARect.Right - ARect.Left) div FWidth;
   LTemp := TBitmap.Create();
   LTemp.SetSize(Width*LScale, Height*LScale);
-  LTemp.Canvas.FillRect(LTemp.Canvas.ClipRect);
   LContext := TGDIRenderContext.Create(LTemp.Canvas.Handle);
+  LContext.Clear(ACanvas.Brush.Color);
   for i := 0 to FShapes.Count - 1 do
   begin
     LPaintContext.FillColor := clNone;
     LPaintContext.StrokeColor := clNone;
     LPaintContext.PenSize :=1;
     if Assigned(FOnDraw) then
+    begin
       FOnDraw(i, LPaintContext);
+    end
+    else
+    begin
+      //some defaultvalues to see something
+      LPaintContext.FillColor := clBlack;
+      LPaintContext.StrokeColor := clBlack;
+    end;
 
     LContext.Brush.Color := LPaintContext.FillColor;
     LContext.Pen.Color := LPaintContext.StrokeColor;
@@ -157,7 +180,7 @@ begin
     FShapes[i].Scale := LScale;
     FShapes[i].Draw(LContext);
   end;
-  ACanvas.StretchDraw(ACanvas.ClipRect, LTemp);
+  ACanvas.StretchDraw(ARect, LTemp);
 end;
 
 procedure TAsciiImage.DrawDebugGrid(const ACanvas: TCanvas);
@@ -187,13 +210,35 @@ begin
   ACanvas.Pen.Color := LColor;
 end;
 
-procedure TAsciiImage.Load(const AAsciiImage: array of string);
+function TAsciiImage.GetEmpty: Boolean;
+begin
+  Result := FShapes.Count = 0;
+end;
+
+function TAsciiImage.GetHeight: Integer;
+begin
+  Result := FHeight;
+end;
+
+function TAsciiImage.GetWidth: Integer;
+begin
+  Result := FWidth;
+end;
+
+procedure TAsciiImage.LoadFromAscii(const AAsciiImage: array of string);
 var
   LLineIndex: Integer;
   LFirstLineLength, LCurrentLineLength: Integer;
   LCharIndex: Integer;
   LChar: Char;
+  i: Integer;
 begin
+  SetLength(FRawData, Length(AAsciiImage));
+  for i := 0 to Length(AAsciiImage) - 1 do
+  begin
+    FRawData[i] := AAsciiImage[i];
+  end;
+
   LFirstLineLength := -1;
   for LLineIndex := 0 to Length(AAsciiImage) - 1 do
   begin
@@ -223,6 +268,43 @@ begin
   FWidth := LFirstLineLength;
   FHeight := Length(AAsciiImage);
   ScanShapes();
+end;
+
+procedure TAsciiImage.LoadFromStream(Stream: TStream);
+var
+  LAscii: TStringList;
+begin
+  LAscii := TStringList.Create();
+  try
+    LAscii.LoadFromStream(Stream);
+    LoadFromAscii(LAscii.ToStringArray);
+  finally
+    LAscii.Free();
+  end;
+end;
+
+procedure TAsciiImage.SaveToAscii(var AAsciiImage: TArray<string>);
+var
+  i: Integer;
+begin
+  SetLength(AAsciiImage, Length(FRawData));
+  for i := 0 to Length(FRawData) - 1 do
+  begin
+    AAsciiImage[i] := FRawData[i];
+  end;
+end;
+
+procedure TAsciiImage.SaveToStream(Stream: TStream);
+var
+  LAscii: TStringList;
+begin
+  LAscii := TStringList.Create();
+  try
+    LAscii.AddStrings(FRawData);
+    LAscii.SaveToStream(Stream);
+  finally
+    LAscii.Free;
+  end;
 end;
 
 procedure TAsciiImage.ScanShapes;
@@ -274,5 +356,31 @@ begin
     end;
   end;
 end;
+
+procedure TAsciiImage.SetHeight(Value: Integer);
+begin
+  inherited;
+  if FHeight <> Value then
+  begin
+    FHeight := Value;
+    Clear();
+  end;
+end;
+
+procedure TAsciiImage.SetWidth(Value: Integer);
+begin
+  inherited;
+  if FWidth <> Value then
+  begin
+    FWidth := Value;
+    Clear();
+  end;
+end;
+
+initialization
+  TPicture.RegisterFileFormat('AIG', 'Ascii Image Graphic', TAsciiImage);
+
+finalization
+  TPicture.UnregisterGraphicClass(TAsciiImage);
 
 end.
