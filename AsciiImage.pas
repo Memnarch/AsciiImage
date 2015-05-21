@@ -5,6 +5,7 @@ interface
 uses
   Classes,
   Types,
+  Windows,
   SysUtils,
   Graphics,
   Generics.Collections,
@@ -20,6 +21,8 @@ type
 
   TAsciiImagePaintCallBack = reference to procedure(const Index: Integer; var Context: TAsciiImagePaintContext);
 
+  TSuperSampling = (ssNone, ssX2, ssX4, ssX8);
+
   TAsciiImage = class(TGraphic)
   private
     FRawData: TArray<string>;
@@ -29,6 +32,7 @@ type
     FWidth: Integer;
     FHeight: Integer;
     FOnDraw: TAsciiImagePaintCallBack;
+    FSuperSampling: TSuperSampling;
   protected
     procedure Clear();
     procedure ScanShapes(); virtual;
@@ -42,6 +46,7 @@ type
     function GetWidth: Integer; override;
     procedure SetHeight(Value: Integer); override;
     procedure SetWidth(Value: Integer); override;
+    function GetSuperSamplingScale(): Integer;
   public
     constructor Create(); override;
     destructor Destroy(); override;
@@ -52,6 +57,7 @@ type
     procedure SaveToStream(Stream: TStream); override;
     procedure Assign(Source: TPersistent); override;
     property OnDraw: TAsciiImagePaintCallBack read FOnDraw write FOnDraw;
+    property SuperSampling: TSuperSampling read FSuperSampling write FSuperSampling;
   end;
 
 implementation
@@ -145,6 +151,7 @@ begin
   end;
   FWidth := 0;
   FHeight := 0;
+  FSuperSampling := ssX8;
 end;
 
 destructor TAsciiImage.Destroy;
@@ -167,8 +174,9 @@ var
   i: Integer;
   LScale: Single;
   LPaintContext: TAsciiImagePaintContext;
+  LOldMode: Cardinal;
 begin
-  LScale := (ARect.Right - ARect.Left) / FWidth;
+  LScale := (ARect.Right - ARect.Left) / FWidth * GetSuperSamplingScale();
   LTemp := TBitmap.Create();
   LTemp.SetSize(Round(Width*LScale), Round(Height*LScale));
   LContext := TGDIRenderContext.Create(LTemp.Canvas.Handle);
@@ -197,7 +205,11 @@ begin
     FShapes[i].Scale := LScale;
     FShapes[i].Draw(LContext);
   end;
-  ACanvas.StretchDraw(ARect, LTemp);
+  LOldMode := GetStretchBltMode(ACanvas.Handle);
+  SetStretchBltMode(ACanvas.Handle, HALFTONE);
+  StretchBlt(ACanvas.Handle, ARect.Left, ARect.Top, ARect.Right - ARect.Left, ARect.Bottom - ARect.Top,
+    LTemp.Canvas.Handle, 0, 0, LTemp.Width, LTemp.Height, SRCCOPY);
+  SetStretchBltMode(ACanvas.Handle, LOldMode);
 end;
 
 procedure TAsciiImage.DrawDebugGrid(const ACanvas: TCanvas);
@@ -236,6 +248,17 @@ end;
 function TAsciiImage.GetHeight: Integer;
 begin
   Result := FHeight;
+end;
+
+function TAsciiImage.GetSuperSamplingScale: Integer;
+begin
+  case FSuperSampling of
+    ssX2: Result := 2;
+    ssX4: Result := 4;
+    ssX8: Result := 8;
+  else
+    Result := 1;
+  end;
 end;
 
 function TAsciiImage.GetWidth: Integer;
