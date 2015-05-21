@@ -50,6 +50,7 @@ type
     procedure DrawDebugGrid(const ACanvas: TCanvas);
     procedure LoadFromStream(Stream: TStream); override;
     procedure SaveToStream(Stream: TStream); override;
+    procedure Assign(Source: TPersistent); override;
     property OnDraw: TAsciiImagePaintCallBack read FOnDraw write FOnDraw;
   end;
 
@@ -100,6 +101,22 @@ begin
   LPath := TAsciiPath.Create();
   LPath.Points.AddRange(APoints);
   FShapes.Add(LPath);
+end;
+
+procedure TAsciiImage.Assign(Source: TPersistent);
+var
+  LSource: TAsciiImage;
+begin
+  if Source is TAsciiImage then
+  begin
+    LSource := TAsciiImage(Source);
+    OnDraw := LSource.OnDraw;
+    LoadFromAscii(LSource.FRawData);
+  end
+  else
+  begin
+    inherited;
+  end;
 end;
 
 procedure TAsciiImage.Clear;
