@@ -21,7 +21,7 @@ type
 
   TAsciiImagePaintCallBack = reference to procedure(const Index: Integer; var Context: TAsciiImagePaintContext);
 
-  TSuperSampling = (ssNone, ssX2, ssX4, ssX8);
+  TDownSampling = (dsNone, dsX2, dsX4, dsX8);
 
   TAsciiImage = class(TGraphic)
   private
@@ -32,7 +32,7 @@ type
     FWidth: Integer;
     FHeight: Integer;
     FOnDraw: TAsciiImagePaintCallBack;
-    FSuperSampling: TSuperSampling;
+    FSuperSampling: TDownSampling;
   protected
     procedure Clear();
     procedure ScanShapes(); virtual;
@@ -57,7 +57,7 @@ type
     procedure SaveToStream(Stream: TStream); override;
     procedure Assign(Source: TPersistent); override;
     property OnDraw: TAsciiImagePaintCallBack read FOnDraw write FOnDraw;
-    property SuperSampling: TSuperSampling read FSuperSampling write FSuperSampling;
+    property DownSampling: TDownSampling read FSuperSampling write FSuperSampling;
   end;
 
 implementation
@@ -151,7 +151,7 @@ begin
   end;
   FWidth := 0;
   FHeight := 0;
-  FSuperSampling := ssX8;
+  FSuperSampling := dsX8;
 end;
 
 destructor TAsciiImage.Destroy;
@@ -253,9 +253,9 @@ end;
 function TAsciiImage.GetSuperSamplingScale: Integer;
 begin
   case FSuperSampling of
-    ssX2: Result := 2;
-    ssX4: Result := 4;
-    ssX8: Result := 8;
+    dsX2: Result := 2;
+    dsX4: Result := 4;
+    dsX8: Result := 8;
   else
     Result := 1;
   end;
