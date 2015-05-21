@@ -32,7 +32,7 @@ type
     FWidth: Integer;
     FHeight: Integer;
     FOnDraw: TAsciiImagePaintCallBack;
-    FSuperSampling: TDownSampling;
+    FDownSampling: TDownSampling;
   protected
     procedure Clear();
     procedure ScanShapes(); virtual;
@@ -57,7 +57,7 @@ type
     procedure SaveToStream(Stream: TStream); override;
     procedure Assign(Source: TPersistent); override;
     property OnDraw: TAsciiImagePaintCallBack read FOnDraw write FOnDraw;
-    property DownSampling: TDownSampling read FSuperSampling write FSuperSampling;
+    property DownSampling: TDownSampling read FDownSampling write FDownSampling;
   end;
 
 implementation
@@ -151,7 +151,7 @@ begin
   end;
   FWidth := 0;
   FHeight := 0;
-  FSuperSampling := dsX8;
+  FDownSampling := dsX8;
 end;
 
 destructor TAsciiImage.Destroy;
@@ -252,7 +252,7 @@ end;
 
 function TAsciiImage.GetSuperSamplingScale: Integer;
 begin
-  case FSuperSampling of
+  case FDownSampling of
     dsX2: Result := 2;
     dsX4: Result := 4;
     dsX8: Result := 8;
