@@ -3,9 +3,13 @@ unit AsciiImage.RenderContext.Types;
 interface
 
 uses
-  System.Types,
   Graphics,
-  UITypes;
+  {$if CompilerVersion > 22}
+  System.Types,
+  System.UITypes;
+  {$Else}
+  Types;
+  {$EndIf}
 
 {$If declared(TGraphic)}
   const Framework = 'VCL';
@@ -16,24 +20,29 @@ uses
 {$ENDIF}
 
 type
-  TColorValue = Cardinal;
+  {$If Framework = 'VCL'}
+  TColorValue = TColor;
+  {$Else}
+  TColorValue = TAlphaColor;
+  {$EndIf}
 
-//{$if declared(TPointF)}
+
+{$if declared(System.Types.TPointF)}
   TPointF = System.Types.TPointF;
-//{$Else}
-//  TPointF = record
-//    X: Single;
-//    Y: Single;
-//  end;
-//{$EndIf}
+{$Else}
+  TPointF = record
+    X: Single;
+    Y: Single;
+  end;
+{$EndIf}
 
-//{$if declared(TRectF)}
+{$if declared(System.Types.TRectF)}
   TRectF = System.Types.TRectF;
-//{$Else}
-//  TRectF = record
-//    Left, Top, Right, Bottom: Single;
-//  end;
-//{$EndIf}
+{$Else}
+  TRectF = record
+    Left, Top, Right, Bottom: Single;
+  end;
+{$EndIf}
 
 
 function PointF(AX, AY: Single): TPointF; inline;

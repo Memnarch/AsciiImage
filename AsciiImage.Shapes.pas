@@ -3,6 +3,9 @@ unit AsciiImage.Shapes;
 interface
 
 uses
+  {$if CompilerVersion > 22}
+  System.Types,
+  {$EndIf}
   Generics.Collections,
   AsciiImage.RenderContext.Types,
   AsciiImage.RenderContext.Intf;

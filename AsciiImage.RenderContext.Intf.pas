@@ -5,7 +5,7 @@ interface
 uses
   Classes,
   Types,
-  VCL.Graphics,
+  Graphics,
   AsciiImage.RenderContext.Types;
 
 type

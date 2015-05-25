@@ -4,7 +4,12 @@ interface
 
 uses
   Classes,
+  {$if CompilerVersion > 22}
+  System.Types,
+  System.UITypes,
+  {$Else}
   Types,
+  {$EndIf}
   Windows,
   SysUtils,
   Graphics,
@@ -72,6 +77,10 @@ type
     procedure Draw(ACanvas: TCanvas; const ARect: TRect); override;
     procedure LoadFromStream(Stream: TStream); override;
     procedure SaveToStream(Stream: TStream); override;
+    procedure LoadFromClipboardFormat(AFormat: Word; AData: THandle;
+      APalette: HPALETTE); override;
+    procedure SaveToClipboardFormat(var AFormat: Word; var AData: THandle;
+      var APalette: HPALETTE); override;
     {$Else}
     procedure Draw(ACanvas: TCanvas; const ARect: TRect);
     procedure LoadFromStream(Stream: TStream);
@@ -205,7 +214,9 @@ var
   i: Integer;
   LScale: Single;
   LPaintContext: TAsciiImagePaintContext;
+  {$If FrameWork = 'VCL'}
   LOldMode: Cardinal;
+  {$EndIf}
 begin
   if Empty then Exit;
   
@@ -285,6 +296,18 @@ begin
   end;
   ACanvas.Pen.Mode := LMode;
   ACanvas.Pen.Color := LColor;
+end;
+
+procedure TAsciiImage.LoadFromClipboardFormat(AFormat: Word; AData: THandle;
+      APalette: HPALETTE);
+begin
+  raise ENotSupportedException.Create('Loading form Clippboard not supported');
+end;
+
+procedure TAsciiImage.SaveToClipboardFormat(var AFormat: Word; var AData: THandle;
+      var APalette: HPALETTE);
+begin
+  raise ENotSupportedException.Create('Saving to Clippboard not supported');
 end;
 {$EndIf}
 
