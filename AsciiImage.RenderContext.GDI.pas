@@ -19,7 +19,7 @@ type
   public
     constructor Create(ADeviceContext: HDC);
     destructor Destroy(); override;
-    procedure Clear(AColor: TColor); override;
+    procedure Clear(AColor: TColorValue); override;
     procedure DrawEllipsis(const ARect: TRectF); override;
     procedure DrawLine(const AFrom: TPointF; const ATo: TPointF); override;
     procedure DrawPolygon(const APoints: array of TPointF); override;
@@ -43,7 +43,7 @@ begin
     FCanvas.Brush.Style := bsClear;
 end;
 
-procedure TGDIRenderContext.Clear(AColor: TColor);
+procedure TGDIRenderContext.Clear(AColor: TColorValue);
 begin
   FCanvas.Brush.Color := AColor;
   FCanvas.FillRect(FCanvas.ClipRect);

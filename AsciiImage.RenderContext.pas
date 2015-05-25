@@ -23,14 +23,14 @@ type
 
   TBrushProperties = class(TProperties, IBrushProperties)
   private
-    FColor: TColor;
+    FColor: TColorValue;
     FVisible: Boolean;
-    function GetColor: TColor;
-    procedure SetColor(const Value: TColor);
+    function GetColor: TColorValue;
+    procedure SetColor(const Value: TColorValue);
     function GetVisible: Boolean;
     procedure SetVisible(const Value: Boolean);
   public
-    property Color: TColor read GetColor write SetColor;
+    property Color: TColorValue read GetColor write SetColor;
     property Visible: Boolean read GetVisible write SetVisible;
   end;
 
@@ -53,11 +53,13 @@ type
     procedure BrushChanged; virtual; abstract;
     procedure PenChanged; virtual; abstract;
   public
-    procedure Clear(AColor: TColor); virtual; abstract;
+    procedure Clear(AColor: TColorValue); virtual; abstract;
     procedure DrawPolygon(const APoints: array of TPointF); virtual; abstract;
     procedure DrawLine(const AFrom, ATo: TPointF); virtual; abstract;
     procedure DrawEllipsis(const ARect: TRectF); virtual; abstract;
     procedure FillRectangle(const ARect: TRectF); virtual; abstract;
+    procedure BeginScene(); virtual;
+    procedure EndScene(); virtual;
     property Brush: IBrushProperties read GetBrush;
     property Pen: IPenProperties read GetPen;
   end;
@@ -84,7 +86,7 @@ end;
 
 { TBrushProperties }
 
-function TBrushProperties.GetColor: TColor;
+function TBrushProperties.GetColor: TColorValue;
 begin
   Result := FColor;
 end;
@@ -94,7 +96,7 @@ begin
   Result := FVisible;
 end;
 
-procedure TBrushProperties.SetColor(const Value: TColor);
+procedure TBrushProperties.SetColor(const Value: TColorValue);
 begin
   if FColor <> Value then
   begin
@@ -129,6 +131,16 @@ begin
 end;
 
 { TRenderContext }
+
+procedure TRenderContext.BeginScene;
+begin
+
+end;
+
+procedure TRenderContext.EndScene;
+begin
+
+end;
 
 function TRenderContext.GetBrush: IBrushProperties;
 begin

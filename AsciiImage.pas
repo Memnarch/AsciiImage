@@ -14,8 +14,8 @@ uses
 
 type
   TAsciiImagePaintContext = record
-    FillColor: TColor;
-    StrokeColor: TColor;
+    FillColor: TColorValue;
+    StrokeColor: TColorValue;
     PenSize: Integer;
   end;
 
@@ -23,7 +23,11 @@ type
 
   TDownSampling = (dsNone, dsX2, dsX4, dsX8);
 
+{$if Framework = 'VCL'}
   TAsciiImage = class(TGraphic)
+{$ELSE}
+  TAsciiImage = class(TInterfacedPersistent)
+{$ENDIF}
   private
     FRawData: TArray<string>;
     FDots: array of TList<TPointF>;
@@ -40,31 +44,58 @@ type
     procedure AddEllipsis(const APoints: array of TPointF); virtual;
     procedure AddPath(const APoints: array of TPointF); virtual;
     procedure AddLine(const AFrom, ATo: TPointF); virtual;
-    procedure Draw(ACanvas: TCanvas; const ARect: TRect); override;
+    {$If Framework = 'VCL'}
     function GetEmpty: Boolean; override;
     function GetHeight: Integer; override;
     function GetWidth: Integer; override;
     procedure SetHeight(Value: Integer); override;
     procedure SetWidth(Value: Integer); override;
+    {$Else}
+    function GetEmpty: Boolean;
+    function GetHeight: Integer;
+    function GetWidth: Integer;
+    procedure SetHeight(Value: Integer);
+    procedure SetWidth(Value: Integer);
+    {$EndIF}
     function GetSuperSamplingScale(): Integer;
   public
+    {$if Framework = 'VCL'}
     constructor Create(); override;
+    {$Else}
+    constructor Create();
+    {$EndIf}
     destructor Destroy(); override;
     procedure LoadFromAscii(const AAsciiImage: array of string);
     procedure SaveToAscii(var AAsciiImage: TArray<string>);
+    {$If Framework = 'VCL'}
     procedure DrawDebugGrid(const ACanvas: TCanvas);
+    procedure Draw(ACanvas: TCanvas; const ARect: TRect); override;
     procedure LoadFromStream(Stream: TStream); override;
     procedure SaveToStream(Stream: TStream); override;
+    {$Else}
+    procedure Draw(ACanvas: TCanvas; const ARect: TRect);
+    procedure LoadFromStream(Stream: TStream);
+    procedure SaveToStream(Stream: TStream);
+    {$ENDIF}
     procedure Assign(Source: TPersistent); override;
     property OnDraw: TAsciiImagePaintCallBack read FOnDraw write FOnDraw;
     property DownSampling: TDownSampling read FDownSampling write FDownSampling;
+    {$If Framework = 'FM'}
+    property Width: Integer read GetWidth write SetWidth;
+    property Height: Integer read GetHeight write SetHeight;
+    property Empty: Boolean read GetEmpty;
+    {$EndIf}
   end;
 
 implementation
 
 uses
   Math,
+  {$If Framework = 'VCL'}
   AsciiImage.RenderContext.GDI,
+  {$Else}
+  AsciiImage.RenderContext.FM,
+  {$EndIf}
   AsciiImage.RenderContext.Intf;
 
 { TAsciiImage }
@@ -176,11 +207,21 @@ var
   LPaintContext: TAsciiImagePaintContext;
   LOldMode: Cardinal;
 begin
+  if Empty then Exit;
+  
   LScale := (ARect.Right - ARect.Left) / FWidth * GetSuperSamplingScale();
   LTemp := TBitmap.Create();
   LTemp.SetSize(Round(Width*LScale), Round(Height*LScale));
+  {$If Framework = 'VCL'}
   LContext := TGDIRenderContext.Create(LTemp.Canvas.Handle);
+  LContext.BeginScene();
   LContext.Clear(ACanvas.Brush.Color);
+  {$Else}
+  LContext := TFMRenderContext.Create(LTemp.Canvas);
+  LContext.BeginScene();
+  LContext.Clear(ACanvas.Fill.Color);
+  {$EndIf}
+
   for i := 0 to FShapes.Count - 1 do
   begin
     LPaintContext.FillColor := clNone;
@@ -205,19 +246,25 @@ begin
     FShapes[i].Scale := LScale;
     FShapes[i].Draw(LContext);
   end;
+  LContext.EndScene();
+  {$if Framework = 'VCL'}
   LOldMode := GetStretchBltMode(ACanvas.Handle);
   SetStretchBltMode(ACanvas.Handle, HALFTONE);
   StretchBlt(ACanvas.Handle, ARect.Left, ARect.Top, ARect.Right - ARect.Left, ARect.Bottom - ARect.Top,
     LTemp.Canvas.Handle, 0, 0, LTemp.Width, LTemp.Height, SRCCOPY);
   SetStretchBltMode(ACanvas.Handle, LOldMode);
+  {$Else}
+  ACanvas.DrawBitmap(LTemp, RectF(0, 0, LTemp.Width, LTemp.Height), RectF(ARect.Left, ARect.Top, ARect.Right, ARect.Bottom), 1);
+  {$EndIf}
 end;
 
+{$If FrameWork = 'VCL'}
 procedure TAsciiImage.DrawDebugGrid(const ACanvas: TCanvas);
 var
   LScaleX, LScaleY: Single;
   i: Integer;
   LMode: TPenMode;
-  LColor: TColor;
+  LColor: TColorValue;
 begin
   LScaleX := (ACanvas.ClipRect.Right - ACanvas.ClipRect.Left) / FWidth;
   LScaleY := (ACanvas.ClipRect.Bottom - ACanvas.ClipRect.Top) / FHeight;
@@ -239,6 +286,7 @@ begin
   ACanvas.Pen.Mode := LMode;
   ACanvas.Pen.Color := LColor;
 end;
+{$EndIf}
 
 function TAsciiImage.GetEmpty: Boolean;
 begin
@@ -419,9 +467,9 @@ begin
 end;
 
 initialization
-  TPicture.RegisterFileFormat('AIG', 'Ascii Image Graphic', TAsciiImage);
+//  TPicture.RegisterFileFormat('AIG', 'Ascii Image Graphic', TAsciiImage);
 
 finalization
-  TPicture.UnregisterGraphicClass(TAsciiImage);
+//  TPicture.UnregisterGraphicClass(TAsciiImage);
 
 end.

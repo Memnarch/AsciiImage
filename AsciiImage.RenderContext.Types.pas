@@ -2,15 +2,38 @@ unit AsciiImage.RenderContext.Types;
 
 interface
 
-type
-  TPointF = record
-    X: Single;
-    Y: Single;
-  end;
+uses
+  System.Types,
+  Graphics,
+  UITypes;
 
-  TRectF = record
-    Left, Top, Right, Bottom: Single;
-  end;
+{$If declared(TGraphic)}
+  const Framework = 'VCL';
+{$Else}
+  const Framework = 'FM';
+  const clNone = TAlphaColorRec.Null;
+  const clBlack = TAlphaColorRec.Black;
+{$ENDIF}
+
+type
+  TColorValue = Cardinal;
+
+//{$if declared(TPointF)}
+  TPointF = System.Types.TPointF;
+//{$Else}
+//  TPointF = record
+//    X: Single;
+//    Y: Single;
+//  end;
+//{$EndIf}
+
+//{$if declared(TRectF)}
+  TRectF = System.Types.TRectF;
+//{$Else}
+//  TRectF = record
+//    Left, Top, Right, Bottom: Single;
+//  end;
+//{$EndIf}
 
 
 function PointF(AX, AY: Single): TPointF; inline;
