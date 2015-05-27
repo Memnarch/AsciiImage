@@ -21,7 +21,7 @@ type
     procedure DrawLine(const AFrom: TPointF; const ATo: TPointF); override;
     procedure DrawPolygon(const APoints: array of TPointF); override;
     procedure FillRectangle(const ARect: TRectF); override;
-    procedure BeginScene(); override;
+    procedure BeginScene(const ARect: TRect); override;
     procedure EndScene(); override;
   end;
 
@@ -93,6 +93,7 @@ procedure TFMRenderContext.EndScene;
 begin
   inherited;
   FCanvas.EndScene();
+//  FCanvas.DrawBitmap(FTemp, RectF(0, 0, FTemp.Width, FTemp.Height), RectF(ARect.Left, ARect.Top, ARect.Right, ARect.Bottom), 1);
 end;
 
 procedure TFMRenderContext.FillRectangle(const ARect: TRectF);

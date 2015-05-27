@@ -41,7 +41,6 @@ type
     FWidth: Integer;
     FHeight: Integer;
     FOnDraw: TAsciiImagePaintCallBack;
-    FDownSampling: TDownSampling;
   protected
     procedure Clear();
     procedure ScanShapes(); virtual;
@@ -62,7 +61,6 @@ type
     procedure SetHeight(Value: Integer);
     procedure SetWidth(Value: Integer);
     {$EndIF}
-    function GetSuperSamplingScale(): Integer;
   public
     {$if Framework = 'VCL'}
     constructor Create(); override;
@@ -88,7 +86,6 @@ type
     {$ENDIF}
     procedure Assign(Source: TPersistent); override;
     property OnDraw: TAsciiImagePaintCallBack read FOnDraw write FOnDraw;
-    property DownSampling: TDownSampling read FDownSampling write FDownSampling;
     {$If Framework = 'FM'}
     property Width: Integer read GetWidth write SetWidth;
     property Height: Integer read GetHeight write SetHeight;
@@ -100,11 +97,7 @@ implementation
 
 uses
   Math,
-  {$If Framework = 'VCL'}
-  AsciiImage.RenderContext.GDI,
-  {$Else}
-  AsciiImage.RenderContext.FM,
-  {$EndIf}
+  AsciiImage.RenderContext.Factory,
   AsciiImage.RenderContext.Intf;
 
 { TAsciiImage }
@@ -191,7 +184,6 @@ begin
   end;
   FWidth := 0;
   FHeight := 0;
-  FDownSampling := dsX8;
 end;
 
 destructor TAsciiImage.Destroy;
@@ -209,27 +201,19 @@ end;
 
 procedure TAsciiImage.Draw(ACanvas: TCanvas; const ARect: TRect);
 var
-  LTemp: TBitmap;
   LContext: IRenderContext;
   i: Integer;
   LScale: Single;
   LPaintContext: TAsciiImagePaintContext;
-  {$If FrameWork = 'VCL'}
-  LOldMode: Cardinal;
-  {$EndIf}
 begin
   if Empty then Exit;
   
-  LScale := (ARect.Right - ARect.Left) / FWidth * GetSuperSamplingScale();
-  LTemp := TBitmap.Create();
-  LTemp.SetSize(Round(Width*LScale), Round(Height*LScale));
+  LScale := (ARect.Right - ARect.Left) / FWidth;
+  LContext := TRenderContextFactory.CreateDefaultRenderContext(ACanvas, Width*LScale, Height*LScale);
+  LContext.BeginScene(ARect);
   {$If Framework = 'VCL'}
-  LContext := TGDIRenderContext.Create(LTemp.Canvas.Handle);
-  LContext.BeginScene();
   LContext.Clear(ACanvas.Brush.Color);
   {$Else}
-  LContext := TFMRenderContext.Create(LTemp.Canvas);
-  LContext.BeginScene();
   LContext.Clear(ACanvas.Fill.Color);
   {$EndIf}
 
@@ -258,15 +242,6 @@ begin
     FShapes[i].Draw(LContext);
   end;
   LContext.EndScene();
-  {$if Framework = 'VCL'}
-  LOldMode := GetStretchBltMode(ACanvas.Handle);
-  SetStretchBltMode(ACanvas.Handle, HALFTONE);
-  StretchBlt(ACanvas.Handle, ARect.Left, ARect.Top, ARect.Right - ARect.Left, ARect.Bottom - ARect.Top,
-    LTemp.Canvas.Handle, 0, 0, LTemp.Width, LTemp.Height, SRCCOPY);
-  SetStretchBltMode(ACanvas.Handle, LOldMode);
-  {$Else}
-  ACanvas.DrawBitmap(LTemp, RectF(0, 0, LTemp.Width, LTemp.Height), RectF(ARect.Left, ARect.Top, ARect.Right, ARect.Bottom), 1);
-  {$EndIf}
 end;
 
 {$If FrameWork = 'VCL'}
@@ -319,17 +294,6 @@ end;
 function TAsciiImage.GetHeight: Integer;
 begin
   Result := FHeight;
-end;
-
-function TAsciiImage.GetSuperSamplingScale: Integer;
-begin
-  case FDownSampling of
-    dsX2: Result := 2;
-    dsX4: Result := 4;
-    dsX8: Result := 8;
-  else
-    Result := 1;
-  end;
 end;
 
 function TAsciiImage.GetWidth: Integer;

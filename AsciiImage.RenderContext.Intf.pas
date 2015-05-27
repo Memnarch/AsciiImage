@@ -4,7 +4,7 @@ interface
 
 uses
   Classes,
-  Types,
+  System.Types,
   Graphics,
   AsciiImage.RenderContext.Types;
 
@@ -46,7 +46,7 @@ type
     procedure DrawLine(const AFrom, ATo: TPointF);
     procedure DrawEllipsis(const ARect: TRectF);
     procedure FillRectangle(const ARect: TRectF);
-    procedure BeginScene();
+    procedure BeginScene(const ARect: TRect);
     procedure EndScene();
     property Brush: IBrushProperties read GetBrush;
     property Pen: IPenProperties read GetPen;

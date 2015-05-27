@@ -44,6 +44,12 @@ type
   end;
 {$EndIf}
 
+{$if CompilerVersion > 22}
+  TRect = System.Types.TRect;
+{$Else}
+  TRect := Types.TRect;
+{$EndIf}
+
 
 function PointF(AX, AY: Single): TPointF; inline;
 function RectF(ALeft, ATop, ARight, ABottom: Single): TRectF; inline;

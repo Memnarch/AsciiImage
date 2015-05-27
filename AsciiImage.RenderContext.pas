@@ -58,7 +58,7 @@ type
     procedure DrawLine(const AFrom, ATo: TPointF); virtual; abstract;
     procedure DrawEllipsis(const ARect: TRectF); virtual; abstract;
     procedure FillRectangle(const ARect: TRectF); virtual; abstract;
-    procedure BeginScene(); virtual;
+    procedure BeginScene(const ARect: TRect); virtual;
     procedure EndScene(); virtual;
     property Brush: IBrushProperties read GetBrush;
     property Pen: IPenProperties read GetPen;
