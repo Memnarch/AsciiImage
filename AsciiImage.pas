@@ -474,10 +474,13 @@ begin
   end;
 end;
 
+{$if Framework = 'VCL'}
 initialization
-//  TPicture.RegisterFileFormat('AIG', 'Ascii Image Graphic', TAsciiImage);
+  TPicture.RegisterFileFormat('AIMG', 'Ascii Image Graphic', TAsciiImage);
+  TPicture.RegisterFileFormat('AsciiImage', 'Ascii Image Graphic', TAsciiImage);
 
 finalization
-//  TPicture.UnregisterGraphicClass(TAsciiImage);
+  TPicture.UnregisterGraphicClass(TAsciiImage);
+{$EndIf}
 
 end.
