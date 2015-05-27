@@ -23,11 +23,15 @@ type
     FTemp: TBitmap;
     FTargetRect: TRect;
     procedure SetDownSampling(const Value: TDownSampling);
+    class var FDefaultDownSampling: TDownSampling;
   protected
     procedure BrushChanged; override;
     procedure PenChanged; override;
     function GetDownSamplingScale(): Integer;
   public
+    class constructor Create();
+    class procedure SetDefaultDownSampling(const ADownSampling: TDownSampling);
+    class function GetDefaultDownSampling: TDownSampling;
     constructor Create(ACanvas: TCanvas; AWidth, AHeight: Single);
     destructor Destroy(); override;
     procedure Clear(AColor: TColorValue); override;
@@ -72,6 +76,11 @@ begin
   FCanvas.Brush.Color := Brush.Color;
 end;
 
+class constructor TGDIRenderContext.Create;
+begin
+  FDefaultDownSampling := dsX8;
+end;
+
 constructor TGDIRenderContext.Create(ACanvas: TCanvas; AWidth, AHeight: Single);
 begin
   inherited Create();
@@ -80,7 +89,7 @@ begin
   FCanvas := FTemp.Canvas;
   FWidth := AWidth;
   FHeight := AHeight;
-  FDownSampling := dsX8;
+  FDownSampling := FDefaultDownSampling;
   BrushChanged();
   PenChanged();
 end;
@@ -137,6 +146,11 @@ begin
   FCanvas.FillRect(LRect);
 end;
 
+class function TGDIRenderContext.GetDefaultDownSampling: TDownSampling;
+begin
+  Result := FDefaultDownSampling;
+end;
+
 function TGDIRenderContext.GetDownSamplingScale: Integer;
 begin
   case FDownSampling of
@@ -157,6 +171,12 @@ begin
     FCanvas.Pen.Style := psSolid
   else
     FCanvas.Pen.Style := psClear;
+end;
+
+class procedure TGDIRenderContext.SetDefaultDownSampling(
+  const ADownSampling: TDownSampling);
+begin
+  FDefaultDownSampling := ADownSampling;
 end;
 
 procedure TGDIRenderContext.SetDownSampling(const Value: TDownSampling);
