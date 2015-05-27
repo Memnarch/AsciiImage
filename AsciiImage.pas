@@ -10,11 +10,13 @@ uses
   {$Else}
   Types,
   {$EndIf}
-  Windows,
   SysUtils,
   Graphics,
   Generics.Collections,
   AsciiImage.RenderContext.Types,
+  {$if Framework = 'VCL'}
+  Windows,
+  {$Endif}
   AsciiImage.Shapes,
   AsciiImage.RenderContext.Factory,
   AsciiImage.RenderContext.Intf;

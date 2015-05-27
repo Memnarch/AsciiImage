@@ -4,7 +4,7 @@ interface
 
 uses
   Classes,
-  System.Types,
+  Types,
   Graphics,
   AsciiImage.RenderContext.Types;
 
