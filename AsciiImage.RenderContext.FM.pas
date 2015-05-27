@@ -4,6 +4,7 @@ interface
 
 uses
   FMX.Graphics,
+  System.Math.Vectors,
   AsciiImage.RenderContext.Types,
   AsciiImage.RenderContext;
 
@@ -27,15 +28,16 @@ type
 
 implementation
 
-uses
-  System.Math.Vectors;
-
 { TFMRenderContext }
 
 procedure TFMRenderContext.BeginScene;
+var
+  LMoveMatrix: TMatrix;
 begin
   inherited;
   FCanvas.BeginScene();
+  LMoveMatrix := TMatrix.CreateTranslation(ARect.Left, ARect.Top);
+  FCanvas.SetMatrix(FCanvas.Matrix * LMoveMatrix);
 end;
 
 procedure TFMRenderContext.BrushChanged;
@@ -93,7 +95,6 @@ procedure TFMRenderContext.EndScene;
 begin
   inherited;
   FCanvas.EndScene();
-//  FCanvas.DrawBitmap(FTemp, RectF(0, 0, FTemp.Width, FTemp.Height), RectF(ARect.Left, ARect.Top, ARect.Right, ARect.Bottom), 1);
 end;
 
 procedure TFMRenderContext.FillRectangle(const ARect: TRectF);

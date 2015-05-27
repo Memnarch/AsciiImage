@@ -222,13 +222,14 @@ procedure TAsciiImage.Draw(ACanvas: TCanvas; const ARect: TRect);
 var
   LContext: IRenderContext;
   i: Integer;
-  LScale: Single;
+  LScaleX, LScaleY: Single;
   LPaintContext: TAsciiImagePaintContext;
 begin
   if Empty then Exit;
   
-  LScale := (ARect.Right - ARect.Left) / FWidth;
-  LContext := CreateRenderContext(ACanvas, Width*LScale, Height*LScale);
+  LScaleX := (ARect.Right - ARect.Left) / FWidth;
+  LScaleY := (ARect.Bottom - ARect.Top) / FHeight;
+  LContext := CreateRenderContext(ACanvas, Width*LScaleX, Height*LScaleY);
   LContext.BeginScene(ARect);
   {$If Framework = 'VCL'}
   LContext.Clear(ACanvas.Brush.Color);
@@ -254,10 +255,11 @@ begin
 
     LContext.Brush.Color := LPaintContext.FillColor;
     LContext.Pen.Color := LPaintContext.StrokeColor;
-    LContext.Pen.Size := Round(LPaintContext.PenSize*LScale);
+    LContext.Pen.Size := Round(LPaintContext.PenSize*LScaleX);
     LContext.Brush.Visible := LContext.Brush.Color <> clNone;
     LContext.Pen.Visible := LContext.Pen.Color <> clNone;
-    FShapes[i].Scale := LScale;
+    FShapes[i].ScaleX := LScaleX;
+    FShapes[i].ScaleY := LScaleY;
     FShapes[i].Draw(LContext);
   end;
   LContext.EndScene();

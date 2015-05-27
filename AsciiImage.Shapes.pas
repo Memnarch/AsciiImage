@@ -15,16 +15,19 @@ type
   private
     FScaledPoints: TList<TPointF>;
     FPoints: TList<TPointF>;
-    FScale: Single;
-    procedure SetScale(const Value: Single);
+    FScaleX: Single;
+    FScaleY: Single;
+    procedure SetScaleX(const Value: Single);
     function GetScaledPoints: TList<TPointF>;
+    procedure SetScaleY(const Value: Single);
   public
     constructor Create();
     destructor Destroy(); override;
     procedure Draw(const AContext: IRenderContext); virtual; abstract;
     property Points: TList<TPointF> read FPoints;
     property ScaledPoints: TList<TPointF> read GetScaledPoints;
-    property Scale: Single read FScale write SetScale;
+    property ScaleX: Single read FScaleX write SetScaleX;
+    property ScaleY: Single read FScaleY write SetScaleY;
   end;
 
   TAsciiEllipsis = class(TAsciiShape)
@@ -74,16 +77,25 @@ begin
   begin
     for LPoint in Points do
     begin
-      FScaledPoints.Add(PointF(LPoint.X*Scale + Scale/2, LPoint.Y*Scale + Scale / 2));
+      FScaledPoints.Add(PointF(LPoint.X*ScaleX + ScaleX/2, LPoint.Y*ScaleY + ScaleY / 2));
     end;
   end;
   Result := FScaledPoints;
 end;
 
-procedure TAsciiShape.SetScale(const Value: Single);
+procedure TAsciiShape.SetScaleX(const Value: Single);
 begin
-  FScale := Value;
+  FScaleX := Value;
   FScaledPoints.Clear;
+end;
+
+procedure TAsciiShape.SetScaleY(const Value: Single);
+begin
+  if FScaleY <> Value then
+  begin
+    FScaleY := Value;
+    FScaledPoints.Clear;
+  end;
 end;
 
 { TAsciiLine }
@@ -101,10 +113,10 @@ var
   LRect: TRectF;
 begin
   LPoint := ScaledPoints[0];
-  LRect.Left := LPoint.X - Scale / 2;
-  LRect.Top := LPoint.Y - Scale / 2;
-  LRect.Right := LPoint.X + Scale / 2;
-  LRect.Bottom := LPoint.Y + Scale / 2;
+  LRect.Left := LPoint.X - ScaleX / 2;
+  LRect.Top := LPoint.Y - ScaleY / 2;
+  LRect.Right := LPoint.X + ScaleX / 2;
+  LRect.Bottom := LPoint.Y + ScaleY / 2;
   AContext.FillRectangle(LRect);
 end;
 
