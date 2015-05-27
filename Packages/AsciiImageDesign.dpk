@@ -1,27 +1,30 @@
 package AsciiImageDesign;
 
 {$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
 {$ALIGN 8}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
-{$DEBUGINFO ON}
+{$DEBUGINFO OFF}
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
 {$IOCHECKS ON}
 {$LOCALSYMBOLS ON}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
-{$OPTIMIZATION ON}
+{$OPTIMIZATION OFF}
 {$OVERFLOWCHECKS OFF}
 {$RANGECHECKS OFF}
 {$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
-{$STACKFRAMES OFF}
+{$STACKFRAMES ON}
 {$TYPEDADDRESS OFF}
 {$VARSTRINGCHECKS ON}
 {$WRITEABLECONST OFF}
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'AsciiImage DesigntimePackage'}
 {$DESIGNONLY}
 {$IMPLICITBUILD ON}
@@ -36,6 +39,7 @@ contains
   AsciiImage.RenderContext.Intf in '..\AsciiImage.RenderContext.Intf.pas',
   AsciiImage.RenderContext in '..\AsciiImage.RenderContext.pas',
   AsciiImage.RenderContext.Types in '..\AsciiImage.RenderContext.Types.pas',
-  AsciiImage.Shapes in '..\AsciiImage.Shapes.pas';
+  AsciiImage.Shapes in '..\AsciiImage.Shapes.pas',
+  AsciiImage.RenderContext.Factory in '..\AsciiImage.RenderContext.Factory.pas';
 
 end.
