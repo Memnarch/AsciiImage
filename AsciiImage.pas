@@ -15,7 +15,9 @@ uses
   Graphics,
   Generics.Collections,
   AsciiImage.RenderContext.Types,
-  AsciiImage.Shapes;
+  AsciiImage.Shapes,
+  AsciiImage.RenderContext.Factory,
+  AsciiImage.RenderContext.Intf;
 
 type
   TAsciiImagePaintContext = record
@@ -41,6 +43,7 @@ type
     FWidth: Integer;
     FHeight: Integer;
     FOnDraw: TAsciiImagePaintCallBack;
+    FOnCreateRenderContext: TCreateRenderContextHook;
   protected
     procedure Clear();
     procedure ScanShapes(); virtual;
@@ -48,6 +51,7 @@ type
     procedure AddEllipsis(const APoints: array of TPointF); virtual;
     procedure AddPath(const APoints: array of TPointF); virtual;
     procedure AddLine(const AFrom, ATo: TPointF); virtual;
+    function CreateRenderContext(ACanvas: TCanvas; AWidth, AHeight: Single): IRenderContext;
     {$If Framework = 'VCL'}
     function GetEmpty: Boolean; override;
     function GetHeight: Integer; override;
@@ -86,6 +90,7 @@ type
     {$ENDIF}
     procedure Assign(Source: TPersistent); override;
     property OnDraw: TAsciiImagePaintCallBack read FOnDraw write FOnDraw;
+    property OnCreateRenderContext: TCreateRenderContextHook read FOnCreateRenderContext write FOnCreateRenderContext;
     {$If Framework = 'FM'}
     property Width: Integer read GetWidth write SetWidth;
     property Height: Integer read GetHeight write SetHeight;
@@ -96,9 +101,7 @@ type
 implementation
 
 uses
-  Math,
-  AsciiImage.RenderContext.Factory,
-  AsciiImage.RenderContext.Intf;
+  Math;
 
 { TAsciiImage }
 
@@ -186,6 +189,20 @@ begin
   FHeight := 0;
 end;
 
+function TAsciiImage.CreateRenderContext(ACanvas: TCanvas; AWidth,
+  AHeight: Single): IRenderContext;
+begin
+  if Assigned(FOnCreateRenderContext) then
+  begin
+    Result := FOnCreateRenderContext(ACanvas, AWidth, AHeight);
+  end
+  else
+  begin
+    Result := TRenderContextFactory.CreateDefaultRenderContext(ACanvas, AWidth, AHeight);
+  end;
+
+end;
+
 destructor TAsciiImage.Destroy;
 var
   LDotList: TList<TPointF>;
@@ -209,7 +226,7 @@ begin
   if Empty then Exit;
   
   LScale := (ARect.Right - ARect.Left) / FWidth;
-  LContext := TRenderContextFactory.CreateDefaultRenderContext(ACanvas, Width*LScale, Height*LScale);
+  LContext := CreateRenderContext(ACanvas, Width*LScale, Height*LScale);
   LContext.BeginScene(ARect);
   {$If Framework = 'VCL'}
   LContext.Clear(ACanvas.Brush.Color);
