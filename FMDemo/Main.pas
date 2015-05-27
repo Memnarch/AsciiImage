@@ -43,7 +43,6 @@ CEllipsis: array[0..4] of string =
 procedure TForm2.Button1Click(Sender: TObject);
 begin
   Memo1.Lines.LoadFromFile('E:\Git\AsciiImage\Demo\Debug\Win32\fixture10.txt');
-  FImage.DownSampling := dsX4;
   FImage.LoadFromAscii(Memo1.Lines.ToStringArray);
   FImage.OnDraw := procedure(const AIndex: Integer; var AContext: TAsciiImagePaintContext)
                       begin
@@ -62,7 +61,6 @@ end;
 procedure TForm2.FormCreate(Sender: TObject);
 begin
   FImage := TAsciiImage.Create();
-  FImage.DownSampling := dsNone;
 end;
 
 procedure TForm2.FormDestroy(Sender: TObject);
@@ -72,8 +70,6 @@ end;
 
 procedure TForm2.PaintBox1Paint(Sender: TObject; Canvas: TCanvas);
 begin
-//  Canvas.DrawRect(RectF(0, 0, Canvas.Width, Canvas.Height), 1, 1, [TCorner.TopLeft, TCorner.TopRight, TCorner.BottomLeft, TCorner.BottomRight], 1);
-//  Canvas.Fill.Color := TAlphaColorRec.Red;
   FImage.Draw(Canvas, Rect(0, 0, Round(PaintBox1.Width), Round(PaintBox1.Height)));
 end;
 

@@ -8,7 +8,8 @@ uses
   AsciiImage.RenderContext in '..\AsciiImage.RenderContext.pas',
   AsciiImage.RenderContext.Intf in '..\AsciiImage.RenderContext.Intf.pas',
   AsciiImage.RenderContext.Types in '..\AsciiImage.RenderContext.Types.pas',
-  AsciiImage.RenderContext.GDI in '..\AsciiImage.RenderContext.GDI.pas';
+  AsciiImage.RenderContext.GDI in '..\AsciiImage.RenderContext.GDI.pas',
+  AsciiImage.RenderContext.Factory in '..\AsciiImage.RenderContext.Factory.pas';
 
 {$R *.res}
 
