@@ -89,6 +89,8 @@ type
     procedure Draw(ACanvas: TCanvas; const ARect: TRect);
     procedure LoadFromStream(Stream: TStream);
     procedure SaveToStream(Stream: TStream);
+    procedure LoadFromFile(const AFileName: string);
+    procedure SaveToFile(const AFileName: string);
     {$ENDIF}
     procedure Assign(Source: TPersistent); override;
     property OnDraw: TAsciiImagePaintCallBack read FOnDraw write FOnDraw;
@@ -366,6 +368,32 @@ begin
   FHeight := Length(AAsciiImage);
   ScanShapes();
 end;
+
+{$if Framework = 'FM'}
+procedure TAsciiImage.LoadFromFile(const AFileName: string);
+var
+  LStream: TStream;
+begin
+  LStream := TFileStream.Create(AFileName, fmOpenRead or fmShareDenyWrite);
+  try
+    LoadFromStream(LStream);
+  finally
+    LStream.Free;
+  end;
+end;
+
+procedure TAsciiImage.SaveToFile(const AFileName: string);
+var
+  LStream: TStream;
+begin
+  LStream := TFileStream.Create(AFileName, fmCreate);
+  try
+    SaveToStream(LStream);
+  finally
+    LStream.Free;
+  end;
+end;
+{$EndIf}
 
 procedure TAsciiImage.LoadFromStream(Stream: TStream);
 var
