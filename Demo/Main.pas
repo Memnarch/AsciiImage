@@ -12,6 +12,7 @@ type
     Image1: TImage;
     Memo1: TMemo;
     cbGrid: TCheckBox;
+    Button2: TButton;
     procedure Button1Click(Sender: TObject);
   private
     { Private declarations }
@@ -93,6 +94,7 @@ begin
   Image1.Picture.Bitmap.SetSize(Image1.Width, Image1.Height);
   LImage := TAsciiImage.Create();
   try
+    if Sender = Button1 then
     Memo1.Lines.LoadFromFile('Fixture10.txt');
     LImage.LoadFromAscii(Memo1.Lines.ToStringArray);
     LImage.OnDraw :=  procedure(const AIndex: Integer; var AContext: TAsciiImagePaintContext)

@@ -4,18 +4,27 @@ interface
 
 uses
   Classes,
+  {$if CompilerVersion > 22}
+  System.Types,
+  System.UITypes,
+  {$Else}
   Types,
-  Windows,
+  {$EndIf}
   SysUtils,
   Graphics,
   Generics.Collections,
   AsciiImage.RenderContext.Types,
-  AsciiImage.Shapes;
+  {$if Framework = 'VCL'}
+  Windows,
+  {$Endif}
+  AsciiImage.Shapes,
+  AsciiImage.RenderContext.Factory,
+  AsciiImage.RenderContext.Intf;
 
 type
   TAsciiImagePaintContext = record
-    FillColor: TColor;
-    StrokeColor: TColor;
+    FillColor: TColorValue;
+    StrokeColor: TColorValue;
     PenSize: Integer;
   end;
 
@@ -23,7 +32,11 @@ type
 
   TDownSampling = (dsNone, dsX2, dsX4, dsX8);
 
+{$if Framework = 'VCL'}
   TAsciiImage = class(TGraphic)
+{$ELSE}
+  TAsciiImage = class(TInterfacedPersistent)
+{$ENDIF}
   private
     FRawData: TArray<string>;
     FDots: array of TList<TPointF>;
@@ -32,7 +45,7 @@ type
     FWidth: Integer;
     FHeight: Integer;
     FOnDraw: TAsciiImagePaintCallBack;
-    FDownSampling: TDownSampling;
+    FOnCreateRenderContext: TCreateRenderContextHook;
   protected
     procedure Clear();
     procedure ScanShapes(); virtual;
@@ -40,32 +53,57 @@ type
     procedure AddEllipsis(const APoints: array of TPointF); virtual;
     procedure AddPath(const APoints: array of TPointF); virtual;
     procedure AddLine(const AFrom, ATo: TPointF); virtual;
-    procedure Draw(ACanvas: TCanvas; const ARect: TRect); override;
+    function CreateRenderContext(ACanvas: TCanvas; AWidth, AHeight: Single): IRenderContext;
+    {$If Framework = 'VCL'}
     function GetEmpty: Boolean; override;
     function GetHeight: Integer; override;
     function GetWidth: Integer; override;
     procedure SetHeight(Value: Integer); override;
     procedure SetWidth(Value: Integer); override;
-    function GetSuperSamplingScale(): Integer;
+    {$Else}
+    function GetEmpty: Boolean;
+    function GetHeight: Integer;
+    function GetWidth: Integer;
+    procedure SetHeight(Value: Integer);
+    procedure SetWidth(Value: Integer);
+    {$EndIF}
   public
+    {$if Framework = 'VCL'}
     constructor Create(); override;
+    {$Else}
+    constructor Create();
+    {$EndIf}
     destructor Destroy(); override;
     procedure LoadFromAscii(const AAsciiImage: array of string);
     procedure SaveToAscii(var AAsciiImage: TArray<string>);
+    {$If Framework = 'VCL'}
     procedure DrawDebugGrid(const ACanvas: TCanvas);
+    procedure Draw(ACanvas: TCanvas; const ARect: TRect); override;
     procedure LoadFromStream(Stream: TStream); override;
     procedure SaveToStream(Stream: TStream); override;
+    procedure LoadFromClipboardFormat(AFormat: Word; AData: THandle;
+      APalette: HPALETTE); override;
+    procedure SaveToClipboardFormat(var AFormat: Word; var AData: THandle;
+      var APalette: HPALETTE); override;
+    {$Else}
+    procedure Draw(ACanvas: TCanvas; const ARect: TRect);
+    procedure LoadFromStream(Stream: TStream);
+    procedure SaveToStream(Stream: TStream);
+    {$ENDIF}
     procedure Assign(Source: TPersistent); override;
     property OnDraw: TAsciiImagePaintCallBack read FOnDraw write FOnDraw;
-    property DownSampling: TDownSampling read FDownSampling write FDownSampling;
+    property OnCreateRenderContext: TCreateRenderContextHook read FOnCreateRenderContext write FOnCreateRenderContext;
+    {$If Framework = 'FM'}
+    property Width: Integer read GetWidth write SetWidth;
+    property Height: Integer read GetHeight write SetHeight;
+    property Empty: Boolean read GetEmpty;
+    {$EndIf}
   end;
 
 implementation
 
 uses
-  Math,
-  AsciiImage.RenderContext.GDI,
-  AsciiImage.RenderContext.Intf;
+  Math;
 
 { TAsciiImage }
 
@@ -151,7 +189,20 @@ begin
   end;
   FWidth := 0;
   FHeight := 0;
-  FDownSampling := dsX8;
+end;
+
+function TAsciiImage.CreateRenderContext(ACanvas: TCanvas; AWidth,
+  AHeight: Single): IRenderContext;
+begin
+  if Assigned(FOnCreateRenderContext) then
+  begin
+    Result := FOnCreateRenderContext(ACanvas, AWidth, AHeight);
+  end
+  else
+  begin
+    Result := TRenderContextFactory.CreateDefaultRenderContext(ACanvas, AWidth, AHeight);
+  end;
+
 end;
 
 destructor TAsciiImage.Destroy;
@@ -169,18 +220,23 @@ end;
 
 procedure TAsciiImage.Draw(ACanvas: TCanvas; const ARect: TRect);
 var
-  LTemp: TBitmap;
   LContext: IRenderContext;
   i: Integer;
-  LScale: Single;
+  LScaleX, LScaleY: Single;
   LPaintContext: TAsciiImagePaintContext;
-  LOldMode: Cardinal;
 begin
-  LScale := (ARect.Right - ARect.Left) / FWidth * GetSuperSamplingScale();
-  LTemp := TBitmap.Create();
-  LTemp.SetSize(Round(Width*LScale), Round(Height*LScale));
-  LContext := TGDIRenderContext.Create(LTemp.Canvas.Handle);
+  if Empty then Exit;
+  
+  LScaleX := (ARect.Right - ARect.Left) / FWidth;
+  LScaleY := (ARect.Bottom - ARect.Top) / FHeight;
+  LContext := CreateRenderContext(ACanvas, Width*LScaleX, Height*LScaleY);
+  LContext.BeginScene(ARect);
+  {$If Framework = 'VCL'}
   LContext.Clear(ACanvas.Brush.Color);
+  {$Else}
+  LContext.Clear(ACanvas.Fill.Color);
+  {$EndIf}
+
   for i := 0 to FShapes.Count - 1 do
   begin
     LPaintContext.FillColor := clNone;
@@ -199,25 +255,23 @@ begin
 
     LContext.Brush.Color := LPaintContext.FillColor;
     LContext.Pen.Color := LPaintContext.StrokeColor;
-    LContext.Pen.Size := Round(LPaintContext.PenSize*LScale);
+    LContext.Pen.Size := Round(LPaintContext.PenSize*LScaleX);
     LContext.Brush.Visible := LContext.Brush.Color <> clNone;
     LContext.Pen.Visible := LContext.Pen.Color <> clNone;
-    FShapes[i].Scale := LScale;
+    FShapes[i].ScaleX := LScaleX;
+    FShapes[i].ScaleY := LScaleY;
     FShapes[i].Draw(LContext);
   end;
-  LOldMode := GetStretchBltMode(ACanvas.Handle);
-  SetStretchBltMode(ACanvas.Handle, HALFTONE);
-  StretchBlt(ACanvas.Handle, ARect.Left, ARect.Top, ARect.Right - ARect.Left, ARect.Bottom - ARect.Top,
-    LTemp.Canvas.Handle, 0, 0, LTemp.Width, LTemp.Height, SRCCOPY);
-  SetStretchBltMode(ACanvas.Handle, LOldMode);
+  LContext.EndScene();
 end;
 
+{$If FrameWork = 'VCL'}
 procedure TAsciiImage.DrawDebugGrid(const ACanvas: TCanvas);
 var
   LScaleX, LScaleY: Single;
   i: Integer;
   LMode: TPenMode;
-  LColor: TColor;
+  LColor: TColorValue;
 begin
   LScaleX := (ACanvas.ClipRect.Right - ACanvas.ClipRect.Left) / FWidth;
   LScaleY := (ACanvas.ClipRect.Bottom - ACanvas.ClipRect.Top) / FHeight;
@@ -240,6 +294,19 @@ begin
   ACanvas.Pen.Color := LColor;
 end;
 
+procedure TAsciiImage.LoadFromClipboardFormat(AFormat: Word; AData: THandle;
+      APalette: HPALETTE);
+begin
+  raise ENotSupportedException.Create('Loading form Clippboard not supported');
+end;
+
+procedure TAsciiImage.SaveToClipboardFormat(var AFormat: Word; var AData: THandle;
+      var APalette: HPALETTE);
+begin
+  raise ENotSupportedException.Create('Saving to Clippboard not supported');
+end;
+{$EndIf}
+
 function TAsciiImage.GetEmpty: Boolean;
 begin
   Result := FShapes.Count = 0;
@@ -248,17 +315,6 @@ end;
 function TAsciiImage.GetHeight: Integer;
 begin
   Result := FHeight;
-end;
-
-function TAsciiImage.GetSuperSamplingScale: Integer;
-begin
-  case FDownSampling of
-    dsX2: Result := 2;
-    dsX4: Result := 4;
-    dsX8: Result := 8;
-  else
-    Result := 1;
-  end;
 end;
 
 function TAsciiImage.GetWidth: Integer;
@@ -419,9 +475,9 @@ begin
 end;
 
 initialization
-  TPicture.RegisterFileFormat('AIG', 'Ascii Image Graphic', TAsciiImage);
+//  TPicture.RegisterFileFormat('AIG', 'Ascii Image Graphic', TAsciiImage);
 
 finalization
-  TPicture.UnregisterGraphicClass(TAsciiImage);
+//  TPicture.UnregisterGraphicClass(TAsciiImage);
 
 end.

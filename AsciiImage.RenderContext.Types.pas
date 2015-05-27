@@ -2,15 +2,53 @@ unit AsciiImage.RenderContext.Types;
 
 interface
 
+uses
+  Graphics,
+  {$if CompilerVersion > 22}
+  System.Types,
+  System.UITypes;
+  {$Else}
+  Types;
+  {$EndIf}
+
+{$If declared(TGraphic)}
+  const Framework = 'VCL';
+{$Else}
+  const Framework = 'FM';
+  const clNone = TAlphaColorRec.Null;
+  const clBlack = TAlphaColorRec.Black;
+{$ENDIF}
+
 type
+  {$If Framework = 'VCL'}
+  TColorValue = TColor;
+  {$Else}
+  TColorValue = TAlphaColor;
+  {$EndIf}
+
+
+{$if declared(System.Types.TPointF)}
+  TPointF = System.Types.TPointF;
+{$Else}
   TPointF = record
     X: Single;
     Y: Single;
   end;
+{$EndIf}
 
+{$if declared(System.Types.TRectF)}
+  TRectF = System.Types.TRectF;
+{$Else}
   TRectF = record
     Left, Top, Right, Bottom: Single;
   end;
+{$EndIf}
+
+{$if CompilerVersion > 22}
+  TRect = System.Types.TRect;
+{$Else}
+  TRect := Types.TRect;
+{$EndIf}
 
 
 function PointF(AX, AY: Single): TPointF; inline;
