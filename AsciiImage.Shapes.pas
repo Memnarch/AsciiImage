@@ -5,7 +5,7 @@ interface
 uses
   {$if CompilerVersion > 22}
   System.Types,
-  {$EndIf}
+  {$IfEnd}
   Generics.Collections,
   AsciiImage.RenderContext.Types,
   AsciiImage.RenderContext.Intf;

@@ -9,7 +9,7 @@ uses
   System.UITypes;
   {$Else}
   Types;
-  {$EndIf}
+  {$IfEnd}
 
 {$If declared(TGraphic)}
   const Framework = 'VCL';
@@ -17,14 +17,14 @@ uses
   const Framework = 'FM';
   const clNone = TAlphaColorRec.Null;
   const clBlack = TAlphaColorRec.Black;
-{$ENDIF}
+{$IfEnd}
 
 type
   {$If Framework = 'VCL'}
   TColorValue = TColor;
   {$Else}
   TColorValue = TAlphaColor;
-  {$EndIf}
+  {$IfEnd}
 
 
 {$if declared(System.Types.TPointF)}
@@ -34,7 +34,7 @@ type
     X: Single;
     Y: Single;
   end;
-{$EndIf}
+{$IfEnd}
 
 {$if declared(System.Types.TRectF)}
   TRectF = System.Types.TRectF;
@@ -42,13 +42,13 @@ type
   TRectF = record
     Left, Top, Right, Bottom: Single;
   end;
-{$EndIf}
+{$IfEnd}
 
 {$if CompilerVersion > 22}
   TRect = System.Types.TRect;
 {$Else}
   TRect := Types.TRect;
-{$EndIf}
+{$IfEnd}
 
 
 function PointF(AX, AY: Single): TPointF; inline;

@@ -9,14 +9,14 @@ uses
   System.UITypes,
   {$Else}
   Types,
-  {$EndIf}
+  {$IfEnd}
   SysUtils,
   Graphics,
   Generics.Collections,
   AsciiImage.RenderContext.Types,
   {$if Framework = 'VCL'}
   Windows,
-  {$Endif}
+  {$IfEnd}
   AsciiImage.Shapes,
   AsciiImage.RenderContext.Factory,
   AsciiImage.RenderContext.Intf;
@@ -36,7 +36,7 @@ type
   TAsciiImage = class(TGraphic)
 {$ELSE}
   TAsciiImage = class(TInterfacedPersistent)
-{$ENDIF}
+{$IfEnd}
   private
     FRawData: TArray<string>;
     FDots: array of TList<TPointF>;
@@ -66,13 +66,13 @@ type
     function GetWidth: Integer;
     procedure SetHeight(Value: Integer);
     procedure SetWidth(Value: Integer);
-    {$EndIF}
+    {$IfEnd}
   public
     {$if Framework = 'VCL'}
     constructor Create(); override;
     {$Else}
     constructor Create();
-    {$EndIf}
+    {$IfEnd}
     destructor Destroy(); override;
     procedure LoadFromAscii(const AAsciiImage: array of string);
     procedure SaveToAscii(var AAsciiImage: TArray<string>);
@@ -91,7 +91,7 @@ type
     procedure SaveToStream(Stream: TStream);
     procedure LoadFromFile(const AFileName: string);
     procedure SaveToFile(const AFileName: string);
-    {$ENDIF}
+    {$IfEnd}
     procedure Assign(Source: TPersistent); override;
     property OnDraw: TAsciiImagePaintCallBack read FOnDraw write FOnDraw;
     property OnCreateRenderContext: TCreateRenderContextHook read FOnCreateRenderContext write FOnCreateRenderContext;
@@ -99,7 +99,7 @@ type
     property Width: Integer read GetWidth write SetWidth;
     property Height: Integer read GetHeight write SetHeight;
     property Empty: Boolean read GetEmpty;
-    {$EndIf}
+    {$IfEnd}
   end;
 
 implementation

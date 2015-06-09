@@ -25,7 +25,7 @@ uses
   AsciiImage.RenderContext.GDI;
   {$Else}
   AsciiImage.RenderContext.FM;
-  {$EndIf}
+  {$IfEnd}
 
 { TRenderContextFactory }
 
@@ -42,7 +42,7 @@ begin
     Result := TGDIRenderContext.Create(ACanvas, AWidth, AHeight);
     {$Else}
     Result := TFMRenderContext.Create(ACanvas);
-    {$EndIf}
+    {$IfEnd}
   end;
 end;
 
