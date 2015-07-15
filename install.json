@@ -1,0 +1,42 @@
+{
+	"search_pathes": 
+	[
+		{
+			"pathes": "."
+		}
+	],
+	
+	"source_folders":
+	[
+		{
+			"folder": ".",
+			"recursive": false,
+			"filter": "*.pas;ReadMe.txt"
+		},
+		
+		{
+			"folder": "Demo",
+			"recursive": true,
+			"filter": "*.*;*"
+		},
+		
+		{
+			"folder": "FMDemo",
+			"recursive": true,
+			"filter": "*.*;*"
+		},
+		
+		{
+			"folder": "Packages",
+			"recursive": true,
+			"filter": "*.*;*"
+		}
+	],
+	
+	"projects":
+	[
+		{
+			"project": "Packages\\AsciiImageDesign.dproj"
+		}
+	]
+}
