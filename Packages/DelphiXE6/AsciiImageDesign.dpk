@@ -34,12 +34,12 @@ requires
   vcl;
 
 contains
-  AsciiImage in '..\AsciiImage.pas',
-  AsciiImage.RenderContext.GDI in '..\AsciiImage.RenderContext.GDI.pas',
-  AsciiImage.RenderContext.Intf in '..\AsciiImage.RenderContext.Intf.pas',
-  AsciiImage.RenderContext in '..\AsciiImage.RenderContext.pas',
-  AsciiImage.RenderContext.Types in '..\AsciiImage.RenderContext.Types.pas',
-  AsciiImage.Shapes in '..\AsciiImage.Shapes.pas',
-  AsciiImage.RenderContext.Factory in '..\AsciiImage.RenderContext.Factory.pas';
+  AsciiImage in '..\..\AsciiImage.pas',
+  AsciiImage.RenderContext.GDI in '..\..\AsciiImage.RenderContext.GDI.pas',
+  AsciiImage.RenderContext.Intf in '..\..\AsciiImage.RenderContext.Intf.pas',
+  AsciiImage.RenderContext in '..\..\AsciiImage.RenderContext.pas',
+  AsciiImage.RenderContext.Types in '..\..\AsciiImage.RenderContext.Types.pas',
+  AsciiImage.Shapes in '..\..\AsciiImage.Shapes.pas',
+  AsciiImage.RenderContext.Factory in '..\..\AsciiImage.RenderContext.Factory.pas';
 
 end.

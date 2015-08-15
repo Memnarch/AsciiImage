@@ -36,7 +36,14 @@
 	"projects":
 	[
 		{
-			"project": "Packages\\AsciiImageDesign.dproj"
+			"project": "Packages\\DelphiXE\\AsciiImageDesign.dproj",
+			"compiler_min": 22,
+			"compiler_max": 26
+		},
+		
+		{
+			"project": "Packages\\DelphiXE6\\AsciiImageDesign.dproj",
+			"compiler_min": 27
 		}
 	]
 }
