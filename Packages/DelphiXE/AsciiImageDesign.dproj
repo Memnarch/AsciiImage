@@ -1,16 +1,14 @@
 ﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 		<PropertyGroup>
-			<ProjectGuid>{3DA728D3-83ED-4704-9D47-C8EBD071D2DF}</ProjectGuid>
+			<ProjectGuid>{D7E15AD1-2DF4-43D1-9D43-D8F29CF72DB9}</ProjectGuid>
 			<MainSource>AsciiImageDesign.dpk</MainSource>
-			<ProjectVersion>15.4</ProjectVersion>
+			<ProjectVersion>12.3</ProjectVersion>
 			<Base>True</Base>
 			<Config Condition="'$(Config)'==''">Debug</Config>
+			<Platform>Win32</Platform>
 			<AppType>Package</AppType>
 			<FrameworkType>VCL</FrameworkType>
 			<DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
-			<TargetedPlatforms>1</TargetedPlatforms>
-			<Platform Condition="'$(Platform)'==''">Win32</Platform>
-			<Platform>Win32</Platform>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
 			<Base>true</Base>
@@ -26,34 +24,28 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
-			<DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;$(DCC_Namespace)</DCC_Namespace>
-			<VerInfo_Locale>1031</VerInfo_Locale>
-			<SanitizedProjectName>AsciiImageDesign</SanitizedProjectName>
-			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-			<GenPackage>true</GenPackage>
 			<DesignOnlyPackage>true</DesignOnlyPackage>
+			<GenPackage>true</GenPackage>
 			<DCC_DcuOutput>.\$(Config)\$(Platform)</DCC_DcuOutput>
-			<DCC_K>false</DCC_K>
-			<DCC_F>false</DCC_F>
+			<DCC_UnitAlias>WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;$(DCC_UnitAlias)</DCC_UnitAlias>
 			<DCC_ImageBase>00400000</DCC_ImageBase>
-			<DCC_E>false</DCC_E>
-			<DCC_Description>AsciiImage DesigntimePackage</DCC_Description>
 			<DCC_N>false</DCC_N>
 			<DCC_S>false</DCC_S>
-			<DCC_CBuilderOutput>All</DCC_CBuilderOutput>
 			<GenDll>true</GenDll>
+			<DCC_E>false</DCC_E>
+			<DCC_F>false</DCC_F>
+			<DCC_K>false</DCC_K>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1)'!=''">
 			<DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
-			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
 			<DCC_Optimize>false</DCC_Optimize>
+			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2)'!=''">
+			<DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
 			<DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
 			<DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
-			<DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
-			<DCC_DebugInformation>0</DCC_DebugInformation>
+			<DCC_DebugInformation>false</DCC_DebugInformation>
 		</PropertyGroup>
 		<ItemGroup>
 			<DelphiCompile Include="AsciiImageDesign.dpk">
@@ -62,12 +54,12 @@
 			<DCCReference Include="rtl.dcp"/>
 			<DCCReference Include="vcl.dcp"/>
 			<DCCReference Include="..\..\AsciiImage.pas"/>
+			<DCCReference Include="..\..\AsciiImage.RenderContext.Factory.pas"/>
 			<DCCReference Include="..\..\AsciiImage.RenderContext.GDI.pas"/>
 			<DCCReference Include="..\..\AsciiImage.RenderContext.Intf.pas"/>
 			<DCCReference Include="..\..\AsciiImage.RenderContext.pas"/>
 			<DCCReference Include="..\..\AsciiImage.RenderContext.Types.pas"/>
 			<DCCReference Include="..\..\AsciiImage.Shapes.pas"/>
-			<DCCReference Include="..\..\AsciiImage.RenderContext.Factory.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
@@ -118,12 +110,13 @@
 						<VersionInfoKeys Name="Comments"/>
 					</VersionInfoKeys>
 					<Excluded_Packages>
-						<Excluded_Packages Name="C:\Program Files (x86)\Raize\CS4\Bin\VCL\CodeSiteExpressVcl_Design150.bpl">File C:\Program Files (x86)\Raize\CS4\Bin\VCL\CodeSiteExpressVcl_Design150.bpl not found</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k150.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dclofficexp150.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
-						<Excluded_Packages Name="C:\Users\Public\Documents\RAD Studio\8.0\Bpl\PluginTest.bpl">File C:\Users\Public\Documents\RAD Studio\8.0\Bpl\PluginTest.bpl not found</Excluded_Packages>
 					</Excluded_Packages>
 				</Delphi.Personality>
+				<Platforms>
+					<Platform value="Win32">True</Platform>
+				</Platforms>
 			</BorlandProject>
 			<ProjectFileVersion>12</ProjectFileVersion>
 		</ProjectExtensions>

@@ -237,7 +237,7 @@ begin
   LContext.Clear(ACanvas.Brush.Color);
   {$Else}
   LContext.Clear(ACanvas.Fill.Color);
-  {$EndIf}
+  {$IfEnd}
 
   for i := 0 to FShapes.Count - 1 do
   begin
@@ -307,7 +307,7 @@ procedure TAsciiImage.SaveToClipboardFormat(var AFormat: Word; var AData: THandl
 begin
   raise ENotSupportedException.Create('Saving to Clippboard not supported');
 end;
-{$EndIf}
+{$IfEnd}
 
 function TAsciiImage.GetEmpty: Boolean;
 begin
@@ -393,7 +393,7 @@ begin
     LStream.Free;
   end;
 end;
-{$EndIf}
+{$IfEnd}
 
 procedure TAsciiImage.LoadFromStream(Stream: TStream);
 var
@@ -509,6 +509,6 @@ initialization
 
 finalization
   TPicture.UnregisterGraphicClass(TAsciiImage);
-{$EndIf}
+{$IfEnd}
 
 end.

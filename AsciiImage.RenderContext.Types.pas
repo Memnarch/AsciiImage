@@ -27,7 +27,7 @@ type
   {$IfEnd}
 
 
-{$if declared(System.Types.TPointF)}
+{$if (CompilerVersion > 22) and declared(System.Types.TPointF)}
   TPointF = System.Types.TPointF;
 {$Else}
   TPointF = record
@@ -36,7 +36,7 @@ type
   end;
 {$IfEnd}
 
-{$if declared(System.Types.TRectF)}
+{$if (CompilerVersion > 22) and declared(System.Types.TRectF)}
   TRectF = System.Types.TRectF;
 {$Else}
   TRectF = record
@@ -47,7 +47,7 @@ type
 {$if CompilerVersion > 22}
   TRect = System.Types.TRect;
 {$Else}
-  TRect := Types.TRect;
+  TRect = Types.TRect;
 {$IfEnd}
 
 
