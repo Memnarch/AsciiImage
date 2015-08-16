@@ -94,6 +94,9 @@
         <DCCReference Include="..\..\AsciiImage.RenderContext.Types.pas"/>
         <DCCReference Include="..\..\AsciiImage.Shapes.pas"/>
         <DCCReference Include="..\..\AsciiImage.RenderContext.Factory.pas"/>
+        <RcCompile Include="..\AsciiImageDesign.rc">
+            <Form>AsciiImageDesign.res</Form>
+        </RcCompile>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
