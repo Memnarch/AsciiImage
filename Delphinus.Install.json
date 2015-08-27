@@ -2,7 +2,8 @@
 	"search_pathes": 
 	[
 		{
-			"pathes": "."
+			"pathes": ".",
+			"platforms": "Win32;Win64"
 		}
 	],
 	

@@ -1,6 +1,9 @@
 {
 	"id": "{D25D0A04-F8CC-45FB-947C-0A917BB9E45F}",
 	"picture": "Logo.jpg",
+	"license_type": "MIT",
+	"license_file": "License",
+	"platforms": "Win32;Win64",
 	"package_compiler_min": 22,
 	"compiler_min": 22
 }
